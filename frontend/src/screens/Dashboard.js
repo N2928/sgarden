@@ -1,9 +1,11 @@
 import { useEffect, useState } from "react";
-import { Grid, Typography, Box } from "@mui/material";
+import { Grid, Typography, Box, IconButton } from "@mui/material";
+import { BookmarkBorder, Bookmark } from "@mui/icons-material";
 
 import Dropdown from "../components/Dropdown.js";
 import Card from "../components/Card.js";
 import Plot from "../components/Plot.js";
+import useGlobalState from "../use-global-state.js";
 
 const availableRegions = ["Thessaloniki", "Athens", "Patras"];
 const generateRandomData = (minimum = 0, maximum = 100) => {
@@ -23,6 +25,9 @@ const formatNumber = (number, symbol = "", showSign = true) => {
 const Dashboard = () => {
     const [selectedRegion, setSelectedRegion] = useState("Thessaloniki");
     const [data, setData] = useState({});
+    const favorites = useGlobalState((state) => state.favorites || []);
+    const toggleFavorite = useGlobalState((state) => state.toggleFavorite);
+    const isBookmarked = favorites.includes("dashboard");
 
     useEffect(() => {
         const newData = {
@@ -52,13 +57,22 @@ const Dashboard = () => {
                 Overview
             </Typography>
 
-            <Grid item style={{ display: "flex", justifyContent: "flex-end", alignItems: "center", marginBottom: "20px" }}>
-                <Typography variant="body1" style={{ marginRight: "10px" }} color="white.main">Region:</Typography>
-                <Dropdown
-                    items={availableRegions.map((region) => ({ value: region, text: region }))}
-                    value={selectedRegion}
-                    onChange={(event) => setSelectedRegion(event.target.value)}
-                />
+            <Grid item style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "20px" }}>
+                <Box display="flex" alignItems="center">
+                    <Typography variant="body1" style={{ marginRight: "10px" }} color="white.main">Region:</Typography>
+                    <Dropdown
+                        items={availableRegions.map((region) => ({ value: region, text: region }))}
+                        value={selectedRegion}
+                        onChange={(event) => setSelectedRegion(event.target.value)}
+                    />
+                </Box>
+                <IconButton
+                    color="secondary"
+                    onClick={() => toggleFavorite("dashboard")}
+                    data-testid="bookmark-toggle-dashboard"
+                >
+                    {isBookmarked ? <Bookmark data-testid="bookmark-active-dashboard" /> : <BookmarkBorder />}
+                </IconButton>
             </Grid>
 
             <Grid container spacing={2}>
