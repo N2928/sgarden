@@ -5,6 +5,7 @@ import { Link, useNavigate, useLocation } from "react-router-dom";
 import {
 	ExpandMore,
 	MoreVert as MoreIcon,
+	Person as PersonIcon,
 } from "@mui/icons-material";
 import { makeStyles } from "@mui/styles";
 import { Image } from "mui-image";
@@ -74,8 +75,8 @@ const useStyles = makeStyles((theme) => ({
 	},
 }));
 
-const ButtonWithText = ({ text, icon, more, handler }) => (
-	<Button sx={{ height: "100%", display: "flex", flexDirection: "column", p: 1, mx: 1 }} onClick={(event) => handler(event)}>
+const ButtonWithText = ({ text, icon, more, handler, dataTestId }) => (
+	<Button sx={{ height: "100%", display: "flex", flexDirection: "column", p: 1, mx: 1 }} onClick={(event) => handler(event)} data-testid={dataTestId}>
 		<div style={{ width: "100%", height: "100%" }}>
 			{icon}
 		</div>
@@ -101,6 +102,12 @@ const Header = ({ isAuthenticated }) => {
 
 	const buttons = [
 		{
+			icon: <PersonIcon className={classes.svgIcon} />,
+			text: "Profile",
+			handler: () => navigate("/profile"),
+			dataTestId: "profile-nav-link",
+		},
+		{
 			icon: <LogoutIcon className={classes.svgIcon} />,
 			text: "Logout",
 			handler: () => {
@@ -120,7 +127,7 @@ const Header = ({ isAuthenticated }) => {
 			onClose={handleMobileMenuClose}
 		>
 			{buttons.map((button) => (
-				<MenuItem key={button.text} onClick={button.handler}>
+				<MenuItem key={button.text} onClick={button.handler} data-testid={button.dataTestId}>
 					<Image src={button.icon} width="20px" sx={{ fill: "third" }} />
 					<p style={{ marginLeft: "5px" }}>{button.text}</p>
 					{button.more && <ExpandMore />}
@@ -156,6 +163,7 @@ const Header = ({ isAuthenticated }) => {
 										text={button.text}
 										handler={button.handler}
 										more={button.more}
+										dataTestId={button.dataTestId}
 									/>
 								))}
 							</Box>

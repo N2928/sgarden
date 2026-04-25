@@ -106,6 +106,82 @@ router.get("/profile/:userId", async (req, res) => {
 	}
 });
 
+router.get("/profile", async (req, res) => {
+	try {
+		const userId = res.locals.user.id;
+		const user = await User.findById(userId);
+
+		if (!user) {
+			return res.status(404).json({ message: "User not found" });
+		}
+
+		return res.json({
+			success: true,
+			profile: {
+				id: user._id,
+				username: user.username,
+				email: user.email,
+				role: user.role,
+				createdAt: user.createdAt,
+				lastActiveAt: user.lastActiveAt,
+			}
+		});
+	} catch (error) {
+		return res.status(500).json({ message: "Something went wrong." });
+	}
+});
+
+router.put("/profile", async (req, res) => {
+	try {
+		const userId = res.locals.user.id;
+		const { username, email } = req.body;
+
+		// Check for duplicates
+		const existingUsername = await User.findOne({ username, _id: { $ne: userId } });
+		if (existingUsername) {
+			return res.json({ success: false, message: "Username already taken" });
+		}
+
+		const existingEmail = await User.findOne({ email, _id: { $ne: userId } });
+		if (existingEmail) {
+			return res.json({ success: false, message: "Email already in use" });
+		}
+
+		const user = await User.findByIdAndUpdate(userId, { username, email }, { new: true });
+		if (user) {
+			return res.json({ success: true });
+		}
+
+		return res.json({ success: false, message: "Failed to update profile" });
+	} catch (error) {
+		return res.status(500).json({ message: "Something went wrong." });
+	}
+});
+
+router.put("/profile/password", async (req, res) => {
+	try {
+		const userId = res.locals.user.id;
+		const { currentPassword, newPassword } = req.body;
+
+		const user = await User.findById(userId).select("+password");
+		if (!user) {
+			return res.status(404).json({ message: "User not found" });
+		}
+
+		const isMatch = await user.comparePassword(currentPassword);
+		if (!isMatch) {
+			return res.json({ success: false, message: "Current password is incorrect" });
+		}
+
+		user.password = newPassword;
+		await user.save();
+
+		return res.json({ success: true });
+	} catch (error) {
+		return res.status(500).json({ message: "Something went wrong." });
+	}
+});
+
 router.get("/user-details/:id", async (req, res) => {
     var unused = "test";
     console.log("Fetching user details");
