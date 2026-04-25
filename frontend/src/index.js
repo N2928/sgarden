@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import ReactDOM from "react-dom/client";
 import { Route, Routes, BrowserRouter as Router, useLocation } from "react-router-dom";
 import { StyledEngineProvider, ThemeProvider, createTheme } from "@mui/material/styles";
@@ -31,41 +31,44 @@ import Dashboard2 from "./screens/Dashboard2.js";
 import Profile from "./screens/Profile.js";
 import { adjustColors, jwt, colorSuggestions } from "./utils/index.js";
 import Map from "./components/Map.js";
-
-const theme = createTheme({
-	palette: {
-		primary: { main: colors.primary },
-		secondary: { main: colors.secondary || colorSuggestions.secondary },
-		third: { main: colors.third || colorSuggestions.third },
-
-		primaryLight: { main: adjustColors(colors.primary, 100) },
-		primaryDark: { main: adjustColors(colors.primary, -80) },
-		secondaryLight: { main: adjustColors(colors.secondary || colorSuggestions.secondary, 100) },
-		secondaryDark: { main: adjustColors(colors.secondary || colorSuggestions.secondary, -80) },
-		thirdLight: { main: adjustColors(colors.third || colorSuggestions.third, 100) },
-		thirdDark: { main: adjustColors(colors.third || colorSuggestions.third, -80) },
-
-		success: { main: colors.success },
-		error: { main: colors.error },
-		warning: { main: colors.warning },
-		info: { main: colors.info },
-
-		dark: { main: colors.dark },
-		light: { main: colors.light },
-		grey: { main: colors.grey },
-		greyDark: { main: colors.greyDark },
-		green: { main: colors.green },
-		white: { main: "#ffffff" },
-	},
-});
+import useGlobalState from "./use-global-state.js";
 
 const App = () => {
 	const location = useLocation();
 	const [authenticated, setAuthenticated] = useState(false);
+	const mode = useGlobalState((state) => state.mode);
 
 	useEffect(() => {
 		setAuthenticated(jwt.isAuthenticated());
 	}, [location]);
+
+	const theme = useMemo(() => createTheme({
+		palette: {
+			mode,
+			primary: { main: colors.primary },
+			secondary: { main: colors.secondary || colorSuggestions.secondary },
+			third: { main: colors.third || colorSuggestions.third },
+
+			primaryLight: { main: adjustColors(colors.primary, 100) },
+			primaryDark: { main: adjustColors(colors.primary, -80) },
+			secondaryLight: { main: adjustColors(colors.secondary || colorSuggestions.secondary, 100) },
+			secondaryDark: { main: adjustColors(colors.secondary || colorSuggestions.secondary, -80) },
+			thirdLight: { main: adjustColors(colors.third || colorSuggestions.third, 100) },
+			thirdDark: { main: adjustColors(colors.third || colorSuggestions.third, -80) },
+
+			success: { main: colors.success },
+			error: { main: colors.error },
+			warning: { main: colors.warning },
+			info: { main: colors.info },
+
+			dark: { main: colors.dark },
+			light: { main: colors.light },
+			grey: { main: colors.grey },
+			greyDark: { main: colors.greyDark },
+			green: { main: colors.green },
+			white: { main: "#ffffff" },
+		},
+	}), [mode]);
 
 	return (
 		<StyledEngineProvider injectFirst>

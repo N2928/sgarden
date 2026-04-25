@@ -6,11 +6,14 @@ import {
 	ExpandMore,
 	MoreVert as MoreIcon,
 	Person as PersonIcon,
+	Brightness4 as MoonIcon,
+	Brightness7 as SunIcon,
 } from "@mui/icons-material";
 import { makeStyles } from "@mui/styles";
 import { Image } from "mui-image";
 
 import { jwt, capitalize } from "../utils/index.js";
+import useGlobalState from "../use-global-state.js";
 import logo from "../assets/images/logo.png";
 import { ReactComponent as LogoutIcon } from "../assets/images/logout.svg";
 
@@ -89,6 +92,8 @@ const ButtonWithText = ({ text, icon, more, handler, dataTestId }) => (
 
 const Header = ({ isAuthenticated }) => {
 	const classes = useStyles();
+	const mode = useGlobalState((state) => state.mode);
+	const setMode = useGlobalState((state) => state.setMode);
 
 	const location = useLocation();
 	const navigate = useNavigate();
@@ -151,6 +156,11 @@ const Header = ({ isAuthenticated }) => {
 					<Box component={Link} to="/">
 						<Image src={logo} alt="Logo" sx={{ p: 0, my: 0, height: "100%", maxWidth: "200px" }} />
 					</Box>
+					{isAuthenticated && (
+						<Typography variant="h6" sx={{ ml: 2, color: "primary.main" }}>
+							Welcome, {jwt.decode()?.username}
+						</Typography>
+					)}
 					<Box className={classes.grow} style={{ height: "100%" }} />
 					{isAuthenticated
 					&& (
@@ -170,6 +180,13 @@ const Header = ({ isAuthenticated }) => {
 							<Box sx={{ display: { xs: "flex", sm: "flex", md: "none" } }}>
 								<IconButton color="primary" onClick={handleMobileMenuOpen}><MoreIcon /></IconButton>
 							</Box>
+							<IconButton
+								color="primary"
+								onClick={() => setMode(mode === "light" ? "dark" : "light")}
+								data-testid="dark-mode-toggle"
+							>
+								{mode === "light" ? <SunIcon data-testid="theme-indicator-light" /> : <MoonIcon data-testid="theme-indicator-dark" />}
+							</IconButton>
 						</>
 					)}
 				</Toolbar>

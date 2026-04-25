@@ -2,8 +2,8 @@ import { useState, useEffect } from "react";
 import { Box, Typography, Button, TextField, Grid, Paper, Divider } from "@mui/material";
 import { Edit as EditIcon, Save as SaveIcon, Lock as LockIcon } from "@mui/icons-material";
 
-import { api, useSnackbar } from "../utils/index.js";
-import Form from "../components/Form.js";
+import api from "../api/index.js";
+import { useSnackbar } from "../utils/index.js";
 
 const Profile = () => {
 	const [profile, setProfile] = useState(null);

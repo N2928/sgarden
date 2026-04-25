@@ -7,6 +7,8 @@ export default create(persist(
 		setUser: (user) => setState({ user }),
 		defaultPageSize: 5,
 		setDefaultPageSize: (defaultPageSize) => setState({ defaultPageSize }),
+		mode: "light",
+		setMode: (mode) => setState({ mode }),
 	}),
 	{
 		name: "sgarden",
