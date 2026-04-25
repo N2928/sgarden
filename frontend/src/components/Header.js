@@ -5,11 +5,15 @@ import { Link, useNavigate, useLocation } from "react-router-dom";
 import {
 	ExpandMore,
 	MoreVert as MoreIcon,
+	Person as PersonIcon,
+	Brightness4 as MoonIcon,
+	Brightness7 as SunIcon,
 } from "@mui/icons-material";
 import { makeStyles } from "@mui/styles";
 import { Image } from "mui-image";
 
 import { jwt, capitalize } from "../utils/index.js";
+import useGlobalState from "../use-global-state.js";
 import logo from "../assets/images/logo.png";
 import { ReactComponent as LogoutIcon } from "../assets/images/logout.svg";
 
@@ -74,8 +78,8 @@ const useStyles = makeStyles((theme) => ({
 	},
 }));
 
-const ButtonWithText = ({ text, icon, more, handler }) => (
-	<Button sx={{ height: "100%", display: "flex", flexDirection: "column", p: 1, mx: 1 }} onClick={(event) => handler(event)}>
+const ButtonWithText = ({ text, icon, more, handler, dataTestId }) => (
+	<Button sx={{ height: "100%", display: "flex", flexDirection: "column", p: 1, mx: 1 }} onClick={(event) => handler(event)} data-testid={dataTestId}>
 		<div style={{ width: "100%", height: "100%" }}>
 			{icon}
 		</div>
@@ -88,6 +92,8 @@ const ButtonWithText = ({ text, icon, more, handler }) => (
 
 const Header = ({ isAuthenticated }) => {
 	const classes = useStyles();
+	const mode = useGlobalState((state) => state.mode);
+	const setMode = useGlobalState((state) => state.setMode);
 
 	const location = useLocation();
 	const navigate = useNavigate();
@@ -100,6 +106,12 @@ const Header = ({ isAuthenticated }) => {
 	const CrumpLink = styled(Link)(({ theme }) => ({ display: "flex", color: theme.palette.third.main }));
 
 	const buttons = [
+		{
+			icon: <PersonIcon className={classes.svgIcon} />,
+			text: "Profile",
+			handler: () => navigate("/profile"),
+			dataTestId: "profile-nav-link",
+		},
 		{
 			icon: <LogoutIcon className={classes.svgIcon} />,
 			text: "Logout",
@@ -120,7 +132,7 @@ const Header = ({ isAuthenticated }) => {
 			onClose={handleMobileMenuClose}
 		>
 			{buttons.map((button) => (
-				<MenuItem key={button.text} onClick={button.handler}>
+				<MenuItem key={button.text} onClick={button.handler} data-testid={button.dataTestId}>
 					<Image src={button.icon} width="20px" sx={{ fill: "third" }} />
 					<p style={{ marginLeft: "5px" }}>{button.text}</p>
 					{button.more && <ExpandMore />}
@@ -144,6 +156,11 @@ const Header = ({ isAuthenticated }) => {
 					<Box component={Link} to="/">
 						<Image src={logo} alt="Logo" sx={{ p: 0, my: 0, height: "100%", maxWidth: "200px" }} />
 					</Box>
+					{isAuthenticated && (
+						<Typography variant="h6" sx={{ ml: 2, color: "primary.main" }}>
+							Welcome, {jwt.decode()?.username}
+						</Typography>
+					)}
 					<Box className={classes.grow} style={{ height: "100%" }} />
 					{isAuthenticated
 					&& (
@@ -156,12 +173,20 @@ const Header = ({ isAuthenticated }) => {
 										text={button.text}
 										handler={button.handler}
 										more={button.more}
+										dataTestId={button.dataTestId}
 									/>
 								))}
 							</Box>
 							<Box sx={{ display: { xs: "flex", sm: "flex", md: "none" } }}>
 								<IconButton color="primary" onClick={handleMobileMenuOpen}><MoreIcon /></IconButton>
 							</Box>
+							<IconButton
+								color="primary"
+								onClick={() => setMode(mode === "light" ? "dark" : "light")}
+								data-testid="dark-mode-toggle"
+							>
+								{mode === "light" ? <SunIcon data-testid="theme-indicator-light" /> : <MoonIcon data-testid="theme-indicator-dark" />}
+							</IconButton>
 						</>
 					)}
 				</Toolbar>
